@@ -3,10 +3,10 @@ from typing import Annotated
 
 from datetime import datetime
 
-from ..injection import Injectable, inject
-from ..dependencies.repositories import get_repository
-from ..repository import UserRepository
-from ..services.base import BaseService
+from injection import Injectable, inject
+from dependencies.repositories import get_repository
+from repository import UserRepository
+from services.base import BaseService
 
 
 class UserService(BaseService):
@@ -31,7 +31,7 @@ class UserService(BaseService):
             )[0]
         )
         self.send_to_kafka(
-            topic="items",
+            topic="users",
             key=str(user['user_id']),
             obj=user
         )

@@ -1,14 +1,12 @@
 from faker import Faker
-from random import choices, randrange
 from datetime import datetime, timedelta
 from decimal import Decimal
-import numpy as np
 
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import select, insert, Connection, func
 
-from .samples.products import Provider as ProductProvider
-from .models import User, Product, ProductCategory, Order, OrderDetails
+from samples.products import Provider as ProductProvider
+from models import User, Product, ProductCategory, Order, OrderDetails
 
 fake = Faker(['en_PH'])
 fake.add_provider(ProductProvider)

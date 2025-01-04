@@ -3,9 +3,9 @@ from confluent_kafka import Producer
 from faker import Faker
 import json
 
-from ..injection import Injectable, inject
-from ..dependencies.producers import get_producer
-from ..samples.products import Provider as ProductProvider
+from injection import Injectable, inject
+from dependencies.producers import get_producer
+from samples.products import Provider as ProductProvider
 
 
 class BaseService:

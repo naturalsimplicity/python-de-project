@@ -3,10 +3,10 @@ from typing import Annotated
 from datetime import datetime, timedelta
 import numpy as np
 
-from ..injection import Injectable, inject
-from ..dependencies.repositories import get_repository
-from ..repository import OrderRepository, ProductRepository, UserRepository
-from ..services.base import BaseService
+from injection import Injectable, inject
+from dependencies.repositories import get_repository
+from repository import OrderRepository, ProductRepository, UserRepository
+from services.base import BaseService
 
 
 class OrderService(BaseService):

@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine, Connection
 from typing import Callable, Annotated, Type
 
-from ..injection import inject, Injectable
-from ..repository import BaseRepository
+from injection import inject, Injectable
+from repository import BaseRepository
 
 
-engine = create_engine("postgresql+psycopg2://postgres_user:postgres_password@localhost:5433/postgres_db")
+engine = create_engine("postgresql+psycopg2://postgres_user:postgres_password@postgres:5432/postgres_db")
 
 conn = engine.connect()
 def get_connection() -> Connection:

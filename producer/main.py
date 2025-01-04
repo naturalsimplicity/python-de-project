@@ -1,13 +1,13 @@
 from time import sleep
 
-from .models import Base
-from .services.order import OrderService
-from .services.user import UserService
-from .services.product import ProductService
+from models import Base
+from services.order import OrderService
+from services.user import UserService
+from services.product import ProductService
 
 
 if __name__ == '__main__':
-    from .dependencies.repositories import engine
+    from dependencies.repositories import engine
     Base.metadata.create_all(engine)
 
     user_service = UserService()
