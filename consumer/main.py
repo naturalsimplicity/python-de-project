@@ -9,138 +9,6 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 # DOCKER_PORT=kafka:9093, HOST_PORT=localhost:9092
 kafka_host = 'kafka:9093'
 
-
-# def read_users(topic="users"):
-#     # DOCKER_PORT=spark://spark-master:7077, HOST_PORT=spark://localhost:7077
-#     session = SparkSession \
-#         .builder \
-#         .appName('SparkStreamingKafka') \
-#         .master("spark://spark-master:7077") \
-#         .getOrCreate()
-#
-#     schema = StructType() \
-#         .add('user_id', IntegerType()) \
-#         .add('first_name', StringType()) \
-#         .add('last_name', StringType()) \
-#         .add('email', StringType()) \
-#         .add('phone_number', StringType()) \
-#         .add('registration_date', TimestampType()) \
-#         .add('loyalty_status', StringType())
-#
-#     # checkpointLocation - path to checkpoint files on machine app is running on
-#     # .option("checkpointLocation", "/opt/bitnami/spark/checkpoint") \
-#     input_stream = session \
-#         .readStream \
-#         .format("kafka") \
-#         .option("kafka.bootstrap.servers", kafka_host) \
-#         .option("subscribe", topic) \
-#         .option("startingOffsets", "earliest") \
-#         .option("failOnDataLoss", False) \
-#         .load()
-#
-#     json_stream = input_stream \
-#         .select(
-#         f.col("timestamp").cast('string'),
-#         f.from_json(f.col('value').cast('string'), schema).alias('value')
-#     )
-#
-#     clean_data = json_stream \
-#         .select(
-#         # f.col('timestamp'),
-#         f.col('value.user_id').alias('user_id'),
-#         f.col('value.first_name').alias('first_name'),
-#         f.col('value.last_name').alias('last_name'),
-#         f.col('value.email').alias('email'),
-#         f.col('value.phone_number').alias('phone_number'),
-#         f.col('value.registration_date').alias('registration_date'),
-#         f.col('value.loyalty_status').alias('loyalty_status')
-#     )
-#
-#     # DOCKER_PORT: jdbc:mysql://mysql:3306/mysql_db, HOST_PORT: jdbc:mysql://localhost:3307/mysql_db
-#     def process_batch(df, epoch_id):
-#         df.show()
-#         df.write \
-#             .format("jdbc") \
-#             .mode("append") \
-#             .option("url", "jdbc:mysql://mysql:3306/mysql_db") \
-#             .option("driver", "com.mysql.cj.jdbc.Driver") \
-#             .option("dbtable", "orders") \
-#             .option("user", "mysql_user") \
-#             .option("password", "mysql_password") \
-#             .save()
-#
-#     # clean_data \
-#     #     .writeStream \
-#     #     .format("console") \
-#     #     .outputMode("append") \
-#     #     .start() \
-#     #     .awaitTermination()
-#
-#     clean_data \
-#         .writeStream \
-#         .foreachBatch(process_batch) \
-#         .start() \
-#         .awaitTermination()
-#
-#
-# def read_orders(topic="orders"):
-#     session = SparkSession \
-#         .builder \
-#         .appName('SparkStreamingKafka') \
-#         .master("spark://spark-master:7077") \
-#         .getOrCreate()
-#
-#     schema = StructType() \
-#         .add('order_id', IntegerType()) \
-#         .add('user_id', IntegerType()) \
-#         .add('order_date', TimestampType()) \
-#         .add('total_amount', DecimalType(19, 2)) \
-#         .add('status', StringType()) \
-#         .add('delivery_date', TimestampType()) \
-#         .add('order_details', StringType())
-#
-#     # checkpointLocation - path to checkpoint files on machine app is running on
-#     # .option("checkpointLocation", "/opt/bitnami/spark/checkpoint") \
-#     input_stream = session \
-#         .readStream \
-#         .format("kafka") \
-#         .option("kafka.bootstrap.servers", kafka_host) \
-#         .option("subscribe", topic) \
-#         .option("startingOffsets", "earliest") \
-#         .option("failOnDataLoss", False) \
-#         .load()
-#
-#     json_stream = input_stream \
-#         .select(
-#         f.col("timestamp").cast('string'),
-#         f.from_json(f.col('value').cast('string'), schema).alias('value')
-#     )
-#
-#     clean_data = json_stream \
-#         .select(
-#         # f.col('timestamp'),
-#         f.col('value.order_id').alias('order_id'),
-#         f.col('value.user_id').alias('user_id'),
-#         f.col('value.order_date').alias('order_date'),
-#         f.col('value.total_amount').alias('total_amount'),
-#         f.col('value.status').alias('status'),
-#         f.col('value.delivery_date').alias('delivery_date')
-#     )
-#
-#     # clean_data \
-#     #     .writeStream \
-#     #     .format("console") \
-#     #     .outputMode("append") \
-#     #     .start() \
-#     #     .awaitTermination()
-#
-#     clean_data \
-#         .writeStream \
-#         .foreachBatch(get_batch_processor("orders")) \
-#         .start() \
-#         .awaitTermination()
-
-
 users_schema = StructType() \
     .add('user_id', IntegerType()) \
     .add('first_name', StringType()) \
@@ -206,9 +74,8 @@ def get_df_from_stream(
         .format("kafka") \
         .option("kafka.bootstrap.servers", kafka_host) \
         .option("subscribe", topic) \
-        .option("startingOffsets", "earliest") \
         .option("failOnDataLoss", False) \
-        .option("checkpointLocation", f"tmp/checkpoint_{topic}") \
+        .option("startingOffsets", "earliest") \
         .load() \
         .select(
             f.col("timestamp").cast('string'),
@@ -222,6 +89,7 @@ def main():
         .master("spark://spark-master:7077") \
         .getOrCreate()
 
+    # .option("checkpointLocation", f"checkpoint_{topic}") \
     get_df_from_stream(session, "products", products_schema) \
         .select(
             f.col('value.product_id').alias('product_id'),

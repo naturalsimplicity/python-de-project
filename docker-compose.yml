@@ -11,7 +11,7 @@ x-airflow-common:
     - ./airflow/config:/usr/local/airflow/config
     - ./airflow/plugins:/usr/local/airflow/plugins
   depends_on:
-    postgres:
+    airflow-postgres:
       condition: service_healthy
   logging:
     options:
@@ -32,7 +32,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: psql postgresql://postgres_user:postgres_password@postgres:5433/postgres_db
+      test: psql postgresql://postgres_user:postgres_password@postgres-origin:5433/postgres_db
       interval: 5s
       retries: 10
   mysql:
@@ -48,9 +48,10 @@ services:
     ports:
       - 3307:3306
     healthcheck:
-      test: mysql --user=mysql_user --password=mysql_password
-      interval: 5s
+      test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'mysql_user', '-p''mysql_password''']
+      interval: 10s
       retries: 10
+      start_period: 30s
   kafka:
     image: apache/kafka
     container_name: kafka
@@ -76,10 +77,10 @@ services:
     volumes:
       - kafka-data:/opt/kafka
     healthcheck:
-      test: "bash -c 'printf \"\" > /dev/tcp/127.0.0.1/9091; exit $$?;'"
-      interval: 5s
+      test: /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9093 || exit 1
+      interval: 10s
       retries: 10
-      start_period: 10s
+      start_period: 30s
   spark-master:
     image: docker.io/bitnami/spark:3.5
     container_name: spark-master
@@ -91,7 +92,7 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
     ports:
-      - 8081:8081
+      - 8081:8080
       - 7077:7077
   spark-worker:
     image: docker.io/bitnami/spark:3.5
@@ -124,7 +125,7 @@ services:
         condition: service_started
       kafka:
         condition: service_healthy
-  postgres:
+  airflow-postgres:
     image: postgres:13
     env_file:
       airflow/.env-dev
@@ -134,7 +135,7 @@ services:
         max-file: "3"
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "airflow" ]
-  webserver:
+  airflow-webserver:
     <<: *airflow-common
     restart: always
     command: webserver
@@ -145,7 +146,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-  scheduler:
+  airflow-scheduler:
     <<: *airflow-common
     command: scheduler
     restart: always
