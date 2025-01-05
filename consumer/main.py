@@ -185,7 +185,6 @@ order_details_schema = StructType() \
 def get_batch_processor(table_name):
     def _process_batch(df, epoch_id):
         df.show()
-        df.printSchema()
         df.write \
             .format("jdbc") \
             .mode("append") \
@@ -209,6 +208,7 @@ def get_df_from_stream(
         .option("subscribe", topic) \
         .option("startingOffsets", "earliest") \
         .option("failOnDataLoss", False) \
+        .option("checkpointLocation", f"tmp/checkpoint_{topic}") \
         .load() \
         .select(
             f.col("timestamp").cast('string'),
